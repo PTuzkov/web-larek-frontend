@@ -13,8 +13,8 @@ export interface IItemData {
 }
 
 export interface ICatalogPage {
-	total: number;
-	items: IItemData[];
+	pageStore: IItemData[];
+	getProduct(id: string): IItemData;
 }
 
 export interface IOrderData {
@@ -44,12 +44,13 @@ export interface IShopApi {
 
 // Интерфейсы модели данных
 export interface ICartData {
-	items: IItemData[];
-	addItem(item: IItemData): void;
-	removeItem(itemId: string): void;
-	clear(): void;
-	getTotalPrice(): number;
-	hasItem(id: string): boolean;
+	cartItems: IItemData[];
+	cartGetItems: IItemData[];
+	cartAddItem(item: IItemData): void;
+	cartRemoveItem(itemId: string): void;
+	cartClear(): void;
+	cartGetTotalPrice(cartTotalPrice: number): number;
+	cartHasItem(id: string): boolean;
 }
 
 export interface IOrderModel {
@@ -117,7 +118,10 @@ export interface IHomePage {
 export interface IEvents {
 	on<T extends object>(event: EventName, callback: (data: T) => void): void;
 	emit<T extends object>(event: string, data?: T): void;
-	trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void;
+	trigger<T extends object>(
+		event: string,
+		context?: Partial<T>
+	): (data: T) => void;
 	onAll(callback: (event: EmitterEvent) => void): void;
 	off(event: EventName, callback: Subscriber): void;
 	offAll(): void;
@@ -133,8 +137,18 @@ export interface IComponent<T> {
 	render(data?: Partial<T>): HTMLElement;
 }
 
-export interface IModel<T> {
-	emitChanges(event: string, data?: Partial<T>): void;
+export type OrderMethodPay = Pick<IOrderData, 'payment' | 'address'>;
+
+export type OrderContact = Pick<IOrderData, 'email' | 'phone'>;
+
+export interface IUserData {
+	clientData: OrderMethodPay & OrderContact;
+}
+
+export interface IContactsData {
+	contactsPhone: string;
+	contactsEmail: string;
+	contactsIsValid: boolean;
 }
 
 // Перечисления событий
@@ -142,7 +156,7 @@ export enum ModelEvents {
 	ItemsLoaded = 'items:loaded',
 	CartUpdated = 'cart:updated',
 	OrderChanged = 'order:changed',
-	OrderValid = 'order:valid'
+	OrderValid = 'order:valid',
 }
 
 export enum ViewEvents {
@@ -152,7 +166,7 @@ export enum ViewEvents {
 	OrderOpen = 'order:open',
 	OrderSubmit = 'order:submit',
 	ModalOpen = 'modal:open',
-	ModalClose = 'modal:close'
+	ModalClose = 'modal:close',
 }
 
 // Дополнительные типы

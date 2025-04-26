@@ -19,6 +19,7 @@ const config = {
   devtool: "source-map",
   output: {
     path: path.resolve(__dirname, "dist"),
+		publicPath: isProduction ? "/web-larek-frontend/" : "/",
   },
   devServer: {
     open: true,
